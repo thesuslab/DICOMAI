@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { X, Send, Trash2, AlertCircle, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef, useMemo } from 'react';
+import { X, Send, Trash2, AlertCircle, Loader2, ClipboardList, MessageSquare } from 'lucide-react';
 import type { ChatMessage, SelectionPlan } from '../llm/types';
 import type { StudyMetadata } from '../dicom/types';
 import type { ChatStatus, PipelineState, SliceMapping } from '../llm/useLLMChat';
+import { detectBodyPart, getChecklist, buildSurveyHint } from '../llm/anatomyChecklists';
 import PipelineView from './PipelineView';
 import AssistantMessage from './AssistantMessage';
 import PlanPreviewCard from './PlanPreviewCard';
@@ -21,7 +22,7 @@ interface ChatSidebarProps {
   studyMetadata: StudyMetadata | null;
   onConfirmPlan: (plan: SelectionPlan) => void;
   onCancelPlan: () => void;
-  onStartAnalysis: (hint: string) => void;
+  onStartAnalysis: (hint: string, options?: { surveyMode?: boolean }) => void;
   onSendFollowUp: (text: string) => void;
   onClear: () => void;
   onClose: () => void;
@@ -45,9 +46,31 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
   onNavigateToSlice,
 }, ref) {
   const [input, setInput] = useState('');
+  const [surveyActive, setSurveyActive] = useState(false);
+  const [selectedStructures, setSelectedStructures] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const busy = status !== 'idle' && status !== 'error' && status !== 'awaiting-confirmation';
+
+  const detectedBodyPart = useMemo(
+    () => (studyMetadata ? detectBodyPart(studyMetadata) : 'unknown'),
+    [studyMetadata],
+  );
+  const checklist = useMemo(() => getChecklist(detectedBodyPart), [detectedBodyPart]);
+
+  // Initialize selected structures from defaults when checklist changes
+  useEffect(() => {
+    setSelectedStructures(
+      new Set(checklist.structures.filter((s) => s.defaultChecked).map((s) => s.id)),
+    );
+  }, [checklist]);
+
+  // Reset survey state when chat is cleared
+  useEffect(() => {
+    if (messages.length === 0) {
+      setSurveyActive(false);
+    }
+  }, [messages.length]);
 
   useImperativeHandle(ref, () => ({
     focusInput: () => inputRef.current?.focus(),
@@ -105,10 +128,32 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         {messages.length === 0 && !busy && !pipeline && (
-          <div className="text-center text-neutral-500 text-xs mt-8">
-            <p>No analysis yet.</p>
-            <p className="mt-1">Describe the clinical context below to start.</p>
-          </div>
+          studyMetadata ? (
+            <SurveyModePanel
+              surveyActive={surveyActive}
+              onToggleSurvey={setSurveyActive}
+              checklist={checklist}
+              selectedStructures={selectedStructures}
+              onToggleStructure={(id) => {
+                setSelectedStructures((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                });
+              }}
+              onRunSurvey={() => {
+                const ids = Array.from(selectedStructures);
+                const hint = buildSurveyHint(detectedBodyPart, ids);
+                onStartAnalysis(hint, { surveyMode: true });
+              }}
+            />
+          ) : (
+            <div className="text-center text-neutral-500 text-xs mt-8">
+              <p>No analysis yet.</p>
+              <p className="mt-1">Describe the clinical context below to start.</p>
+            </div>
+          )
         )}
 
         {messages.map((msg, i) => {
@@ -185,6 +230,97 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
     </div>
   );
 });
+
+interface SurveyModePanelProps {
+  surveyActive: boolean;
+  onToggleSurvey: (active: boolean) => void;
+  checklist: ReturnType<typeof getChecklist>;
+  selectedStructures: Set<string>;
+  onToggleStructure: (id: string) => void;
+  onRunSurvey: () => void;
+}
+
+function SurveyModePanel({
+  surveyActive,
+  onToggleSurvey,
+  checklist,
+  selectedStructures,
+  onToggleStructure,
+  onRunSurvey,
+}: SurveyModePanelProps) {
+  const selectedCount = selectedStructures.size;
+
+  return (
+    <div className="mt-4 space-y-3">
+      {/* Mode toggle */}
+      <div className="flex gap-1 bg-neutral-800 rounded-lg p-1">
+        <button
+          onClick={() => onToggleSurvey(false)}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            !surveyActive
+              ? 'bg-neutral-700 text-neutral-100'
+              : 'text-neutral-400 hover:text-neutral-300'
+          }`}
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          Free Text
+        </button>
+        <button
+          onClick={() => onToggleSurvey(true)}
+          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            surveyActive
+              ? 'bg-neutral-700 text-neutral-100'
+              : 'text-neutral-400 hover:text-neutral-300'
+          }`}
+        >
+          <ClipboardList className="w-3.5 h-3.5" />
+          Guided Survey
+        </button>
+      </div>
+
+      {!surveyActive && (
+        <div className="text-center text-neutral-500 text-xs">
+          <p>Describe the clinical context below to start.</p>
+        </div>
+      )}
+
+      {surveyActive && (
+        <div className="space-y-2">
+          <div className="text-xs text-neutral-400">
+            Detected: <span className="text-neutral-200 font-medium">{checklist.displayName}</span>
+          </div>
+
+          {/* Structure checklist */}
+          <div className="max-h-64 overflow-y-auto space-y-0.5 pr-1">
+            {checklist.structures.map((item) => (
+              <label
+                key={item.id}
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-neutral-800 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedStructures.has(item.id)}
+                  onChange={() => onToggleStructure(item.id)}
+                  className="rounded border-neutral-600 bg-neutral-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                />
+                <span className="text-xs text-neutral-300">{item.label}</span>
+              </label>
+            ))}
+          </div>
+
+          {/* Run button */}
+          <button
+            onClick={onRunSurvey}
+            disabled={selectedCount === 0}
+            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:text-neutral-500 text-white text-xs font-medium transition-colors"
+          >
+            Run Survey ({selectedCount} structure{selectedCount !== 1 ? 's' : ''})
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === 'user') {

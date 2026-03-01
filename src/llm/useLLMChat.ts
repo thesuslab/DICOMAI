@@ -41,7 +41,7 @@ interface UseLLMChatReturn {
   error: string | null;
   currentPlan: SelectionPlan | null;
   pipeline: PipelineState | null;
-  startAnalysis: (hint: string, viewportContext?: ViewportContext) => Promise<void>;
+  startAnalysis: (hint: string, viewportContext?: ViewportContext, options?: { surveyMode?: boolean }) => Promise<void>;
   confirmPlan: (adjustedPlan: SelectionPlan) => Promise<void>;
   cancelPlan: () => void;
   sendFollowUp: (text: string) => Promise<void>;
@@ -204,11 +204,13 @@ export function useLLMChat(
   const [pipeline, setPipeline] = useState<PipelineState | null>(null);
   const abortRef = useRef(false);
   const hintRef = useRef<string>('');
+  const surveyModeRef = useRef(false);
   const planTimingRef = useRef<{ t0: number; t1: number }>({ t0: 0, t1: 0 });
 
-  const startAnalysis = useCallback(async (hint: string, viewportContext?: ViewportContext) => {
+  const startAnalysis = useCallback(async (hint: string, viewportContext?: ViewportContext, options?: { surveyMode?: boolean }) => {
     if (!metadata) return;
     abortRef.current = false;
+    surveyModeRef.current = options?.surveyMode ?? false;
     setError(null);
 
     // Initialize pipeline
@@ -418,7 +420,7 @@ export function useLLMChat(
 
       const sliceLabels = allMappings.map((m) => m.label);
       logger.log(`Call 2 — Sending ${allBlobs.length} images to LLM (${sliceLabels.join(', ')})...`);
-      const analysisText = await service.analyzeSlices(allBlobs, metadata, hint, adjustedPlan, sliceLabels);
+      const analysisText = await service.analyzeSlices(allBlobs, metadata, hint, adjustedPlan, sliceLabels, surveyModeRef.current);
       const t5 = performance.now();
       if (abortRef.current) { logger.groupEnd(); return; }
 
@@ -502,6 +504,7 @@ export function useLLMChat(
 
   const clearChat = useCallback(() => {
     abortRef.current = true;
+    surveyModeRef.current = false;
     setMessages([]);
     setStatus('idle');
     setError(null);

@@ -250,7 +250,7 @@ export default function App() {
     saveConfig(config);
   }, []);
 
-  const handleStartAnalysis = useCallback((hint: string) => {
+  const handleStartAnalysis = useCallback((hint: string, options?: { surveyMode?: boolean }) => {
     // Capture current viewport position as context for slice selection
     let viewportContext: ViewportContext | undefined;
     try {
@@ -278,7 +278,7 @@ export default function App() {
       }
     } catch { /* viewport may not be ready */ }
 
-    startAnalysis(hint, viewportContext);
+    startAnalysis(hint, viewportContext, options);
   }, [startAnalysis, studyMetadata]);
 
   const navigateTargetRef = useRef<{ instanceNumber: number; imageId: string; seriesNumber: string } | null>(null);

@@ -126,6 +126,7 @@ class ClaudeService implements LLMService {
     clinicalHint: string,
     plan: SelectionPlan,
     sliceLabels: string[],
+    surveyMode?: boolean,
   ): Promise<string> {
     const imageContents = await Promise.all(
       images.map(async (blob, i) => [
@@ -153,7 +154,7 @@ class ClaudeService implements LLMService {
     ];
 
     return this.callClaude({
-      system: buildAnalysisSystemPrompt(),
+      system: buildAnalysisSystemPrompt(surveyMode),
       messages: [{ role: 'user', content }],
       temperature: 0,
       maxTokens: 4096,
@@ -237,6 +238,7 @@ class OllamaService implements LLMService {
     clinicalHint: string,
     plan: SelectionPlan,
     sliceLabels: string[],
+    surveyMode?: boolean,
   ): Promise<string> {
     const base64Images = await Promise.all(images.map(blobToBase64));
     const manifest = sliceLabels.map((l, i) => `  ${i + 1}. ${l}`).join('\n');
@@ -246,7 +248,7 @@ class OllamaService implements LLMService {
 
     return this.callOllama({
       model: this.visionModel,
-      system: buildAnalysisSystemPrompt(),
+      system: buildAnalysisSystemPrompt(surveyMode),
       userContent,
       images: base64Images,
     });

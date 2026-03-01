@@ -24,6 +24,7 @@ import {
   Circle,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { ActiveToolName, LayoutType, OrientationMarkerType } from './ViewportGrid';
 
 type MeasureTool = 'Length' | 'Angle' | 'EllipticalROI';
@@ -88,6 +89,51 @@ const markerTypes: { name: OrientationMarkerType; label: string }[] = [
   { name: 'custom', label: 'Human Model' },
 ];
 
+/**
+ * Portal-based dropdown menu that escapes overflow:hidden/auto ancestors.
+ * Uses a transparent backdrop to handle outside clicks — this avoids the
+ * problem of document-level mousedown listeners racing with menu item clicks.
+ */
+function PortalDropdown({
+  anchorRef,
+  open,
+  onClose,
+  children,
+}: {
+  anchorRef: React.RefObject<HTMLElement | null>;
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!open || !anchorRef.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
+    setPos({ top: rect.bottom + 4, left: rect.left });
+  }, [open, anchorRef]);
+
+  if (!open) return null;
+
+  return createPortal(
+    <>
+      {/* Invisible backdrop — catches clicks outside the menu */}
+      <div
+        className="fixed inset-0 z-[9998]"
+        onMouseDown={onClose}
+      />
+      {/* The actual dropdown menu — above the backdrop */}
+      <div
+        className="fixed bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 z-[9999] min-w-[180px] pointer-events-auto"
+        style={{ top: pos.top, left: pos.left }}
+      >
+        {children}
+      </div>
+    </>,
+    document.body,
+  );
+}
+
 export default function Toolbar({
   activeTool, onToolChange,
   layout, onLayoutChange,
@@ -106,9 +152,9 @@ export default function Toolbar({
   const [measureOpen, setMeasureOpen] = useState(false);
   const [currentMeasure, setCurrentMeasure] = useState<MeasureTool>('Length');
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const markerDropdownRef = useRef<HTMLDivElement>(null);
-  const measureDropdownRef = useRef<HTMLDivElement>(null);
+  const layoutBtnRef = useRef<HTMLButtonElement>(null);
+  const markerBtnRef = useRef<HTMLButtonElement>(null);
+  const measureBtnRef = useRef<HTMLDivElement>(null);
 
   // Track active measurement tool
   useEffect(() => {
@@ -116,40 +162,6 @@ export default function Toolbar({
       setCurrentMeasure(activeTool);
     }
   }, [activeTool]);
-
-  // Click-outside handlers
-  useEffect(() => {
-    if (!layoutOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setLayoutOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [layoutOpen]);
-
-  useEffect(() => {
-    if (!markerOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (markerDropdownRef.current && !markerDropdownRef.current.contains(e.target as Node)) {
-        setMarkerOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [markerOpen]);
-
-  useEffect(() => {
-    if (!measureOpen) return;
-    function handleClick(e: MouseEvent) {
-      if (measureDropdownRef.current && !measureDropdownRef.current.contains(e.target as Node)) {
-        setMeasureOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [measureOpen]);
 
   const isMeasureActive = activeTool === 'Length' || activeTool === 'Angle' || activeTool === 'EllipticalROI';
   const activeMeasureInfo = measureTools.find((m) => m.name === currentMeasure) ?? measureTools[0];
@@ -169,7 +181,7 @@ export default function Toolbar({
     }`;
 
   return (
-    <div className="flex items-center gap-1 px-3 py-2 bg-neutral-900 border-b border-neutral-800 overflow-x-auto whitespace-nowrap">
+    <div className="relative z-20 flex items-center gap-1 px-3 py-2 bg-neutral-900 border-b border-neutral-800 overflow-x-auto whitespace-nowrap">
       {/* Series browser toggle — far left */}
       {onToggleSeriesBrowser && (
         <>
@@ -211,7 +223,7 @@ export default function Toolbar({
       )}
 
       {/* Measurement dropdown */}
-      <div className="relative flex items-center" ref={measureDropdownRef}>
+      <div className="relative flex items-center" ref={measureBtnRef}>
         <button
           onClick={() => {
             if (isMeasureActive) {
@@ -241,28 +253,26 @@ export default function Toolbar({
         >
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
-        {measureOpen && (
-          <div className="absolute top-full left-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 z-50 min-w-[180px]">
-            {measureTools.map((m) => (
-              <button
-                key={m.name}
-                onClick={() => {
-                  setCurrentMeasure(m.name);
-                  onToolChange(m.name);
-                  setMeasureOpen(false);
-                }}
-                className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
-                  activeTool === m.name
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'text-neutral-300 hover:bg-neutral-700'
-                }`}
-              >
-                {m.icon}
-                {m.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <PortalDropdown anchorRef={measureBtnRef} open={measureOpen} onClose={() => setMeasureOpen(false)}>
+          {measureTools.map((m) => (
+            <button
+              key={m.name}
+              onClick={() => {
+                setCurrentMeasure(m.name);
+                onToolChange(m.name);
+                setMeasureOpen(false);
+              }}
+              className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
+                activeTool === m.name
+                  ? 'bg-blue-600/20 text-blue-400'
+                  : 'text-neutral-300 hover:bg-neutral-700'
+              }`}
+            >
+              {m.icon}
+              {m.label}
+            </button>
+          ))}
+        </PortalDropdown>
       </div>
 
       <div className="w-px h-6 bg-neutral-700 mx-1" />
@@ -314,69 +324,65 @@ export default function Toolbar({
       <div className="w-px h-6 bg-neutral-700 mx-1" />
 
       {/* Layout dropdown */}
-      <div className="relative" ref={dropdownRef}>
-        <button
-          onClick={() => setLayoutOpen(!layoutOpen)}
-          title="Layout"
-          className={btnClass()}
-        >
-          <LayoutGrid className="w-5 h-5" />
-          <span className="hidden sm:inline">Layout</span>
-        </button>
-        {layoutOpen && (
-          <div className="absolute top-full left-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 z-50 min-w-[180px]">
-            {layouts.map((l) => (
-              <button
-                key={l.name}
-                onClick={() => {
-                  onLayoutChange(l.name);
-                  setLayoutOpen(false);
-                }}
-                className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
-                  layout === l.name
-                    ? 'bg-blue-600/20 text-blue-400'
-                    : 'text-neutral-300 hover:bg-neutral-700'
-                }`}
-              >
-                {l.icon}
-                {l.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      <button
+        ref={layoutBtnRef}
+        onClick={() => setLayoutOpen(!layoutOpen)}
+        title="Layout"
+        className={btnClass()}
+      >
+        <LayoutGrid className="w-5 h-5" />
+        <span className="hidden sm:inline">Layout</span>
+      </button>
+      <PortalDropdown anchorRef={layoutBtnRef} open={layoutOpen} onClose={() => setLayoutOpen(false)}>
+        {layouts.map((l) => (
+          <button
+            key={l.name}
+            onClick={() => {
+              onLayoutChange(l.name);
+              setLayoutOpen(false);
+            }}
+            className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
+              layout === l.name
+                ? 'bg-blue-600/20 text-blue-400'
+                : 'text-neutral-300 hover:bg-neutral-700'
+            }`}
+          >
+            {l.icon}
+            {l.label}
+          </button>
+        ))}
+      </PortalDropdown>
 
       {/* Orientation marker type dropdown */}
       {onOrientationMarkerTypeChange && (
-        <div className="relative" ref={markerDropdownRef}>
+        <>
           <button
+            ref={markerBtnRef}
             onClick={() => setMarkerOpen(!markerOpen)}
             title="Orientation marker"
             className={btnClass()}
           >
             <Compass className="w-5 h-5" />
           </button>
-          {markerOpen && (
-            <div className="absolute top-full left-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 z-50 min-w-[180px]">
-              {markerTypes.map((m) => (
-                <button
-                  key={m.name}
-                  onClick={() => {
-                    onOrientationMarkerTypeChange(m.name);
-                    setMarkerOpen(false);
-                  }}
-                  className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
-                    orientationMarkerType === m.name
-                      ? 'bg-blue-600/20 text-blue-400'
-                      : 'text-neutral-300 hover:bg-neutral-700'
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          <PortalDropdown anchorRef={markerBtnRef} open={markerOpen} onClose={() => setMarkerOpen(false)}>
+            {markerTypes.map((m) => (
+              <button
+                key={m.name}
+                onClick={() => {
+                  onOrientationMarkerTypeChange(m.name);
+                  setMarkerOpen(false);
+                }}
+                className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
+                  orientationMarkerType === m.name
+                    ? 'bg-blue-600/20 text-blue-400'
+                    : 'text-neutral-300 hover:bg-neutral-700'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </PortalDropdown>
+        </>
       )}
 
       {/* Spacer */}

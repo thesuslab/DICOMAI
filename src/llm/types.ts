@@ -56,6 +56,7 @@ export interface LLMService {
     clinicalHint: string,
     plan: SelectionPlan,
     sliceLabels: string[],
+    surveyMode?: boolean,
   ): Promise<string>;
   sendFollowUp(
     conversationHistory: ChatMessage[],

@@ -20,7 +20,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
         </div>
 
         {/* Drop zone (rendered by DicomDropZone) */}
-        <div className="h-56 mb-10">
+        <div className="h-[22rem] mb-10">
           {children}
         </div>
 

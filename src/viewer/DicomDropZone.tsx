@@ -1,10 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
-import { Upload, FolderOpen } from 'lucide-react';
+import { Upload, FolderOpen, FlaskConical, Loader2 } from 'lucide-react';
 import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 import dicomParser from 'dicom-parser';
 import type { AnatomicalPlane } from '../dicom/orientationUtils';
 import { extractFileMetadata, buildStudyMetadata, type RawFileRecord } from '../dicom/MetadataExtractor';
 import type { StudyMetadata } from '../dicom/types';
+import { loadSampleData, type SampleDataProgress } from '../utils/sampleDataLoader';
 
 export interface LoadResult {
   imageIds: string[];
@@ -79,6 +80,8 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
   const [loading, setLoading] = useState(false);
   const [loadingPhase, setLoadingPhase] = useState<'reading' | 'sorting'>('reading');
   const [progress, setProgress] = useState({ loaded: 0, total: 0 });
+  const [sampleProgress, setSampleProgress] = useState<SampleDataProgress | null>(null);
+  const [sampleError, setSampleError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback(
@@ -204,6 +207,20 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
     setDragOver(false);
   }, []);
 
+  const handleLoadSample = useCallback(async () => {
+    setSampleError(null);
+    setSampleProgress({ phase: 'downloading', percent: 0 });
+    try {
+      const files = await loadSampleData((p) => setSampleProgress(p));
+      setLoading(true);
+      setSampleProgress(null);
+      await processFiles(files);
+    } catch (err) {
+      setSampleProgress(null);
+      setSampleError(err instanceof Error ? err.message : 'Failed to load sample data');
+    }
+  }, [processFiles]);
+
   if (loading) {
     const pct = progress.total > 0 ? Math.round((progress.loaded / progress.total) * 100) : 0;
     return (
@@ -223,6 +240,15 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
     );
   }
 
+  const sampleBusy = sampleProgress != null;
+  const sampleLabel = sampleProgress
+    ? sampleProgress.phase === 'downloading'
+      ? `Downloading... ${sampleProgress.percent}%`
+      : sampleProgress.phase === 'extracting'
+        ? `Extracting... ${sampleProgress.percent}%`
+        : 'Loading into viewer...'
+    : null;
+
   return (
     <div
       onDrop={handleDrop}
@@ -232,9 +258,9 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
         dragOver ? 'border-blue-500 bg-blue-500/10' : 'border-neutral-700 hover:border-neutral-500'
       }`}
     >
-      <Upload className="w-12 h-12 text-neutral-500 mb-4" />
+      <Upload className="w-12 h-12 text-neutral-500 mb-3" />
       <p className="text-neutral-400 text-lg">Drop DICOM files or folder here</p>
-      <p className="text-neutral-600 text-sm mt-2">Supports .dcm files and DICOM directories</p>
+      <p className="text-neutral-600 text-sm mt-1">Supports .dcm files and DICOM directories</p>
       <input
         ref={inputRef}
         type="file"
@@ -247,11 +273,35 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        className="mt-4 flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-neutral-100 transition-colors text-sm"
+        disabled={sampleBusy}
+        className="mt-3 flex items-center gap-2 px-4 py-2 rounded-md bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-neutral-100 transition-colors text-sm disabled:opacity-50"
       >
         <FolderOpen className="w-4 h-4" />
         Browse Folder
       </button>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 w-48 mt-4 mb-2">
+        <div className="flex-1 h-px bg-neutral-700" />
+        <span className="text-xs text-neutral-600">or</span>
+        <div className="flex-1 h-px bg-neutral-700" />
+      </div>
+
+      {/* Sample data button */}
+      <button
+        type="button"
+        onClick={handleLoadSample}
+        disabled={sampleBusy}
+        className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600/20 border border-blue-500/30 text-blue-300 hover:bg-blue-600/30 hover:text-blue-200 transition-colors text-sm disabled:opacity-70"
+      >
+        {sampleBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
+        {sampleBusy ? sampleLabel : 'Try with Sample Knee MRI'}
+      </button>
+      <p className="text-neutral-600 text-xs mt-1">Public anonymized dataset &middot; ~32 MB</p>
+
+      {sampleError && (
+        <p className="text-red-400 text-xs mt-2">{sampleError}</p>
+      )}
     </div>
   );
 }

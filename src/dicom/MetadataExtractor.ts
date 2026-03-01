@@ -131,7 +131,7 @@ function inferMRIWeighting(tr?: number, te?: number, description?: string): stri
 // Non-image modalities that cannot be rendered in a viewport
 const NON_IMAGE_MODALITIES = new Set(['SR', 'KO', 'PR', 'SEG', 'DOC', 'REG']);
 
-const SCOUT_DESCRIPTION_PATTERN = /\b(scout|localizer|survey)\b/i;
+const SCOUT_DESCRIPTION_PATTERN = /\b(scout|loc|localizer|survey)\b/i;
 
 function detectScout(description: string, imageType: string | undefined, rows: number | undefined, columns: number | undefined): boolean {
   if (SCOUT_DESCRIPTION_PATTERN.test(description)) return true;

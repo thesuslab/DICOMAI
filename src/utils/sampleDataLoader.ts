@@ -41,24 +41,41 @@ export async function loadSampleData(
 
   const files: File[] = [];
   const entries = Object.entries(zip.files).filter(([, f]) => !f.dir);
+  // Skip known non-DICOM filenames
+  const SKIP_NAMES = new Set(['dicomdir', 'readme', 'readme.txt', 'license', 'license.txt']);
+  const SKIP_EXTENSIONS = new Set(['.xml', '.json', '.txt', '.csv', '.html', '.htm', '.pdf', '.jpg', '.png', '.gif', '.zip', '.md']);
   let extracted = 0;
 
   for (const [path, zipEntry] of entries) {
-    const data = await zipEntry.async('arraybuffer');
+    extracted++;
     const fileName = path.split('/').pop() || path;
+    const lower = fileName.toLowerCase();
 
-    // Include .dcm files, files without extension, or files starting with I/IM (common DICOM naming)
-    if (
-      fileName.endsWith('.dcm') ||
-      !fileName.includes('.') ||
-      fileName.startsWith('I') ||
-      fileName.startsWith('IM')
-    ) {
-      const file = new File([data], fileName, { type: 'application/dicom' });
-      files.push(file);
+    // Skip known non-DICOM files by name or extension
+    if (SKIP_NAMES.has(lower)) {
+      onProgress?.({ phase: 'extracting', percent: Math.round((extracted / entries.length) * 100) });
+      continue;
+    }
+    const dotIdx = lower.lastIndexOf('.');
+    if (dotIdx >= 0) {
+      const ext = lower.slice(dotIdx);
+      if (ext !== '.dcm' && SKIP_EXTENSIONS.has(ext)) {
+        onProgress?.({ phase: 'extracting', percent: Math.round((extracted / entries.length) * 100) });
+        continue;
+      }
     }
 
-    extracted++;
+    const data = await zipEntry.async('arraybuffer');
+
+    // Validate DICM preamble (bytes 128-131 should be "DICM")
+    if (data.byteLength >= 132) {
+      const preamble = new Uint8Array(data, 128, 4);
+      if (preamble[0] === 0x44 && preamble[1] === 0x49 && preamble[2] === 0x43 && preamble[3] === 0x4d) {
+        const file = new File([data], fileName, { type: 'application/dicom' });
+        files.push(file);
+      }
+    }
+
     onProgress?.({ phase: 'extracting', percent: Math.round((extracted / entries.length) * 100) });
   }
 

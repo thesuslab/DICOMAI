@@ -59,11 +59,13 @@ export default function LandingScreen({ children }: LandingScreenProps) {
             Features
           </h3>
           <ul className="text-sm text-zinc-400 space-y-1.5">
-            <li>Multi-series support with automatic scout detection</li>
-            <li>Smart slice filtering — AI picks what matters</li>
-            <li>Interactive results with clickable slice navigation</li>
-            <li>Privacy-first: DICOM files stay in your browser</li>
-            <li>Works with Claude API or local models via Ollama</li>
+            <li><strong>Multi-series support with automatic scout detection</strong></li>
+            <li><strong>Smart slice filtering</strong> — AI picks what matters</li>
+            <li><strong>Interactive results</strong> — Findings include clickable slice references that jump the viewer directly to the referenced image.</li>
+            <li><strong>Privacy-first</strong> — DICOM files are processed entirely in your browser; no image data is uploaded to any server unless you explicitly send text to your configured LLM provider.</li>
+            <li><strong>Multiple layouts</strong> — Choose 1×1, 1×2, 2×1, 2×2 grids or MPR axial/sagittal/coronal views for flexible review.</li>
+            <li><strong>Standard tools</strong> — Window/level, zoom, pan, length measurement, rotate, flip, invert, and cine playback are all available.</li>
+            <li><strong>Provider-agnostic</strong> — Works with Claude API (recommended) Open Router or local models via Ollama.</li>
           </ul>
         </div>
 
@@ -72,7 +74,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
           <span>Developed by</span>
           <span>&middot;</span>
           <a
-            href="https://gautama.com.np"
+            href="https://kathmandu.codes"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-zinc-400 transition-colors"

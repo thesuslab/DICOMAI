@@ -158,7 +158,9 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
         (s) => s.seriesInstanceUID === studyMetadata.primarySeriesUID
       );
       const imageIds = primarySeries ? primarySeries.slices.map((s) => s.imageId) : records.map((r) => r.imageId);
-      const primaryAxis: AnatomicalPlane = primarySeries?.anatomicalPlane ?? 'axial';
+      const detectedPlane = primarySeries?.anatomicalPlane ?? 'axial';
+      const plane = detectedPlane === 'oblique' ? 'axial' : detectedPlane;
+      const primaryAxis: AnatomicalPlane = plane;
 
       setLoading(false);
       onFilesLoaded({ imageIds, primaryAxis, studyMetadata });

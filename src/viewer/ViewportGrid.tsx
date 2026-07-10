@@ -342,7 +342,7 @@ export default function ViewportGrid({
     const engine = renderingEngineRef.current;
     if (!engine) return;
     for (const vp of engine.getViewports()) {
-      vp.setProperties({ invert });
+      (vp as any).setProperties({ invert });
       vp.render();
     }
   }, [invert]);
@@ -402,7 +402,7 @@ export default function ViewportGrid({
     if (!engine) return;
     const t = togglesRef.current;
     for (const vp of engine.getViewports()) {
-      if (t.invert) vp.setProperties({ invert: true });
+      if (t.invert) (vp as any).setProperties({ invert: true });
       if (t.flipH) vp.setCamera({ flipHorizontal: true });
       if (t.flipV) vp.setCamera({ flipVertical: true });
       vp.render();
@@ -545,7 +545,7 @@ export default function ViewportGrid({
 
     renderingEngine.resize();
     renderingEngine.renderViewports([VOLUME_SINGLE_VP_ID]);
-    applyToggles();
+    applyInitialState();
 
     listenToViewport(element, Enums.Events.VOLUME_NEW_IMAGE, () => {
       updateSingleInfo(VOLUME_SINGLE_VP_ID);
@@ -615,7 +615,7 @@ export default function ViewportGrid({
 
     renderingEngine.resize();
     renderingEngine.renderViewports(MPR_VIEWPORT_IDS);
-    applyToggles();
+    applyInitialState();
 
     const updateAllMprInfo = () => {
       const engine = renderingEngineRef.current;

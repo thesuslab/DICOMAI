@@ -31,14 +31,17 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export type ProviderType = 'claude' | 'ollama';
+export type ProviderType = 'claude' | 'ollama' | 'openrouter';
 
 export interface ProviderConfig {
   provider: ProviderType;
-  apiKey?: string;           // Claude only
+  apiKey?: string;           // Claude/OpenRouter API key
   ollamaTextModel?: string;  // Ollama model for Call 1 (text-only planning)
   ollamaVisionModel?: string; // Ollama model for Call 2 (multimodal analysis)
   ollamaUrl?: string;        // Ollama base URL override
+  openRouterTextModel?: string; // OpenRouter model for Call 1 (text-only planning)
+  openRouterVisionModel?: string; // OpenRouter model for Call 2 (multimodal analysis)
+  openRouterUrl?: string;   // OpenRouter base URL override
 }
 
 export interface ViewportContext {

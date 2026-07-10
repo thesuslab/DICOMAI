@@ -214,8 +214,16 @@ export function useLLMChat(
     setError(null);
 
     // Initialize pipeline
-    const textModel = providerConfig.provider === 'ollama' ? (providerConfig.ollamaTextModel || 'alibayram/medgemma:4b') : 'claude';
-    const visionModel = providerConfig.provider === 'ollama' ? (providerConfig.ollamaVisionModel || 'llava:7b') : 'claude';
+    const textModel = providerConfig.provider === 'ollama'
+      ? (providerConfig.ollamaTextModel || 'llama3.2')
+      : providerConfig.provider === 'openrouter'
+        ? (providerConfig.openRouterTextModel || 'openai/gpt-4o-mini')
+        : 'claude';
+    const visionModel = providerConfig.provider === 'ollama'
+      ? (providerConfig.ollamaVisionModel || 'llava:7b')
+      : providerConfig.provider === 'openrouter'
+        ? (providerConfig.openRouterVisionModel || 'openai/gpt-4o-mini')
+        : 'claude';
     const initialSteps: PipelineStep[] = [
       { id: 'plan', label: `Selection planning (${textModel})`, status: 'pending' },
       { id: 'select', label: 'Selecting slices', status: 'pending' },
@@ -243,7 +251,7 @@ export function useLLMChat(
         steps: updateStep(p.steps, 'plan', { status: 'active', detail: 'Sending metadata to LLM...' }),
       }));
 
-      logger.group('[DICOMassist] Analysis Pipeline');
+      logger.group('[DICOMAI] Analysis Pipeline');
       logger.log('Clinical hint:', hint);
       logger.log('Study metadata:', {
         study: metadata.studyDescription,
@@ -316,7 +324,7 @@ export function useLLMChat(
     try {
       const service = createLLMService(providerConfig);
 
-      logger.group('[DICOMassist] Analysis Pipeline (continued)');
+      logger.group('[DICOMAI] Analysis Pipeline (continued)');
       logger.log('Confirmed plan:', adjustedPlan);
 
       // Step 2: Select slices across all series

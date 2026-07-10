@@ -10,7 +10,7 @@ export default function DisclaimerModal({ onAccept }: DisclaimerModalProps) {
           Important Disclaimer
         </h2>
         <p className="text-zinc-300 mb-4">
-          DICOMassist is an educational and research tool.
+          DICOMAI is an educational and research tool.
         </p>
         <ul className="text-zinc-400 text-sm space-y-2 mb-6">
           <li className="flex gap-2">

@@ -31,6 +31,22 @@ async function blobToBase64(blob: Blob): Promise<string> {
   return btoa(binary);
 }
 
+function extractTextContent(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === 'string') return part;
+        if (part && typeof part === 'object' && 'text' in part && typeof (part as { text?: unknown }).text === 'string') {
+          return (part as { text: string }).text;
+        }
+        return '';
+      })
+      .join('');
+  }
+  return '';
+}
+
 function parseSeriesSelection(raw: Record<string, unknown>): SeriesSelection {
   return {
     seriesNumber: String(raw.seriesNumber),
@@ -210,6 +226,120 @@ class ClaudeService implements LLMService {
   }
 }
 
+// --- OpenRouter Service ---
+
+class OpenRouterService implements LLMService {
+  private apiKey: string;
+  private baseUrl: string;
+  private textModel: string;
+  private visionModel: string;
+
+  constructor(apiKey: string, textModel: string, visionModel: string, baseUrl: string) {
+    this.apiKey = apiKey;
+    this.textModel = textModel;
+    this.visionModel = visionModel;
+    this.baseUrl = baseUrl;
+  }
+
+  async getSelectionPlan(metadata: StudyMetadata, clinicalHint: string, viewportContext?: ViewportContext): Promise<SelectionPlan> {
+    const response = await this.callOpenRouter({
+      model: this.textModel,
+      messages: [
+        { role: 'system', content: buildSelectionSystemPrompt() },
+        { role: 'user', content: buildSelectionUserPrompt(metadata, clinicalHint, viewportContext) },
+      ],
+      temperature: 0,
+      maxTokens: 1024,
+    });
+    return parseSelectionPlan(response);
+  }
+
+  async analyzeSlices(
+    images: Blob[],
+    metadata: StudyMetadata,
+    clinicalHint: string,
+    plan: SelectionPlan,
+    sliceLabels: string[],
+    surveyMode?: boolean,
+  ): Promise<string> {
+    const imageContents = await Promise.all(
+      images.map(async (blob, i) => {
+        const data = await blobToBase64(blob);
+        return [
+          { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${data}` } },
+          { type: 'text', text: sliceLabels[i] ?? `Image ${i + 1}` },
+        ];
+      }),
+    );
+
+    const content = [
+      { type: 'text', text: `IMAGE MANIFEST (${sliceLabels.length} images, in sequential order):\n${sliceLabels.map((l, i) => `  ${i + 1}. ${l}`).join('\n')}\n\nThe images are provided in the exact order listed above.\n\n` },
+      ...imageContents.flat(),
+      { type: 'text', text: buildAnalysisUserPrompt(metadata, clinicalHint, plan, sliceLabels) },
+    ];
+
+    return this.callOpenRouter({
+      model: this.visionModel,
+      messages: [
+        { role: 'system', content: buildAnalysisSystemPrompt(surveyMode) },
+        { role: 'user', content },
+      ],
+      temperature: 0,
+      maxTokens: 4096,
+    });
+  }
+
+  async sendFollowUp(conversationHistory: ChatMessage[], metadata: StudyMetadata): Promise<string> {
+    const messages = [
+      { role: 'system' as const, content: buildFollowUpSystemPrompt() + '\n\nStudy context: ' + metadata.studyDescription },
+      ...conversationHistory.map((msg) => ({
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+      })),
+    ];
+
+    return this.callOpenRouter({
+      model: this.textModel,
+      messages,
+      temperature: 0,
+      maxTokens: 4096,
+    });
+  }
+
+  private async callOpenRouter(params: {
+    model: string;
+    messages: Array<{ role: string; content: unknown }>;
+    temperature: number;
+    maxTokens: number;
+  }): Promise<string> {
+    const res = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.apiKey}`,
+        'HTTP-Referer': window.location.origin || 'http://localhost:5173',
+        'X-Title': 'DICOMAI',
+      },
+      body: JSON.stringify({
+        model: params.model,
+        messages: params.messages,
+        temperature: params.temperature,
+        max_tokens: params.maxTokens,
+        stream: false,
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      if (res.status === 401) throw new Error('Invalid OpenRouter API key. Check your OpenRouter API key.');
+      throw new Error(`OpenRouter API error (${res.status}): ${body}`);
+    }
+
+    const data = await res.json();
+    return extractTextContent(data.choices?.[0]?.message?.content ?? '');
+  }
+}
+
 // --- Ollama Service ---
 
 class OllamaService implements LLMService {
@@ -331,7 +461,7 @@ class OllamaService implements LLMService {
 
 // --- Factory ---
 
-const DEFAULT_TEXT_MODEL = 'alibayram/medgemma:4b';
+const DEFAULT_TEXT_MODEL = 'llama3.2';
 const DEFAULT_VISION_MODEL = 'gemma3:4b';
 
 export function createLLMService(config: ProviderConfig): LLMService {
@@ -340,6 +470,16 @@ export function createLLMService(config: ProviderConfig): LLMService {
     if (!key) throw new Error('Claude API key is required. Enter it in Settings.');
     return new ClaudeService(key);
   }
+
+  if (config.provider === 'openrouter') {
+    const key = config.apiKey || import.meta.env.VITE_OPENROUTER_API_KEY;
+    if (!key) throw new Error('OpenRouter API key is required. Enter it in Settings.');
+    const baseUrl = config.openRouterUrl || 'https://openrouter.ai/api/v1';
+    const textModel = config.openRouterTextModel || 'openai/gpt-4o-mini';
+    const visionModel = config.openRouterVisionModel || 'openai/gpt-4o-mini';
+    return new OpenRouterService(key, textModel, visionModel, baseUrl);
+  }
+
   const baseUrl = config.ollamaUrl || 'http://localhost:11434';
   const textModel = config.ollamaTextModel || DEFAULT_TEXT_MODEL;
   const visionModel = config.ollamaVisionModel || DEFAULT_VISION_MODEL;

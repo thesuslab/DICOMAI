@@ -10,7 +10,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">DICOMassist</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">DICOMAI</h1>
           <p className="text-lg text-zinc-400">AI-Powered Medical Image Analysis</p>
           <p className="text-sm text-zinc-500 mt-2">
             Smart slice selection meets multimodal AI analysis.
@@ -69,10 +69,10 @@ export default function LandingScreen({ children }: LandingScreenProps) {
 
         {/* Footer */}
         <div className="text-center text-xs text-zinc-600 space-x-3">
-          <span>Open Source</span>
+          <span>Developed by</span>
           <span>&middot;</span>
           <a
-            href="https://github.com/erketellal/DICOMassist"
+            href="https://gautama.com.np"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-zinc-400 transition-colors"
@@ -80,7 +80,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
             GitHub
           </a>
           <span>&middot;</span>
-          <span>Educational use only</span>
+          <span>Educational and research purpose only</span>
         </div>
       </div>
     </div>

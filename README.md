@@ -1,22 +1,22 @@
-# DICOMassist
+# DICOMAI
 
 **AI-Powered Medical Image Analysis**
 
-Smart slice selection meets multimodal AI analysis. DICOMassist is a web-based DICOM viewer that intelligently selects the right images before sending them to an LLM for analysis — because the hard part isn't the AI, it's knowing what to send it.
+Smart slice selection meets multimodal AI analysis. DICOMAI is a web-based DICOM viewer that intelligently selects the right images before sending them to an LLM for analysis — because the hard part isn't the AI, it's knowing what to send it.
 
 <p align="center">
-  <img src="docs/demo.gif" alt="DICOMassist demo" width="800" />
+  <img src="docs/demo.gif" alt="DICOMAI demo" width="800" />
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/fdDkg8ZleyA">Watch the full demo video</a> · <a href="https://dicomassist.dev">Live demo</a>
+  <a href="https://youtu.be/fdDkg8ZleyA">Watch the full demo video</a> · <a href="https://dicomai.dev">Live demo</a>
 </p>
 
 > ⚠️ **Educational and research use only.** Not a certified medical device. Not intended for clinical diagnosis or treatment decisions.
 
 ## How It Works
 
-A knee MRI can have 200+ slices across 8+ series. Dumping them all to an AI gives garbage results. DICOMassist uses a **two-call architecture**:
+A knee MRI can have 200+ slices across 8+ series. Dumping them all to an AI gives garbage results. DICOMAI uses a **two-call architecture**:
 
 1. **Load** — Drag and drop DICOM files or folders into the browser
 2. **Analyze** — Describe what to evaluate (e.g., "evaluate for ACL tear grade")
@@ -37,13 +37,13 @@ A knee MRI can have 200+ slices across 8+ series. Dumping them all to an AI give
 
 ### Live demo
 
-Visit [dicomassist.dev](https://dicomassist.dev)
+Visit [dicomai.dev](https://dicomai.dev)
 
 ### Run locally
 
 ```bash
-git clone https://github.com/erketellal/DICOMassist.git
-cd DICOMassist
+git clone https://github.com/adaichang/DICOMAI.git
+cd DICOMAI
 npm install
 npm run dev
 ```
@@ -58,7 +58,7 @@ For local models, install [Ollama](https://ollama.ai), pull a model (`ollama pul
 
 ### Sample data
 
-To try DICOMassist, you can use public DICOM datasets:
+To try DICOMAI, you can use public DICOM datasets:
 
 - [DICOM Library](https://www.dicomlibrary.com) — free sample datasets
 - [The Cancer Imaging Archive](https://www.cancerimagingarchive.net) — research datasets
@@ -103,4 +103,4 @@ MIT
 
 ---
 
-*DICOMassist is an educational tool built to demonstrate intelligent data preparation for AI-powered medical image analysis. It is not a certified medical device and must not be used for clinical decision-making.*
+*DICOMAI is an educational tool built to demonstrate intelligent data preparation for AI-powered medical image analysis. It is not a certified medical device and must not be used for clinical decision-making.*

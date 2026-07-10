@@ -1,5 +1,5 @@
 {
-  "name": "dicomassist",
+  "name": "dicomai",
   "private": true,
   "version": "0.1.0",
   "description": "DICOM viewer with LLM-powered slice selection and clinical analysis",

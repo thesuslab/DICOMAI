@@ -297,9 +297,9 @@ export default function DicomDropZone({ onFilesLoaded }: DicomDropZoneProps) {
         className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600/20 border border-blue-500/30 text-blue-300 hover:bg-blue-600/30 hover:text-blue-200 transition-colors text-sm disabled:opacity-70"
       >
         {sampleBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
-        {sampleBusy ? sampleLabel : 'Try with Sample Knee MRI'}
+        {sampleBusy ? sampleLabel : 'Try with Sample C Spine MRI'}
       </button>
-      <p className="text-neutral-600 text-xs mt-1">Public anonymized dataset &middot; ~32 MB</p>
+      <p className="text-neutral-600 text-xs mt-1">Public anonymized dataset &middot; ~64 MB</p>
 
       {sampleError && (
         <p className="text-red-400 text-xs mt-2">{sampleError}</p>

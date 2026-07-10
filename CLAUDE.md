@@ -1,4 +1,4 @@
-# CLAUDE.md — DICOMassist
+# CLAUDE.md — DICOMAI
 
 ## Project Overview
 
@@ -45,7 +45,7 @@ export default defineConfig({
 ## Project Structure
 
 ```
-DICOMassist/
+DICOMAI/
 ├── src/
 │   ├── viewer/              # Cornerstone3D setup, viewports, toolbar
 │   │   ├── CornerstoneInit.ts       # One-time init of core + tools + imageLoader
@@ -398,7 +398,7 @@ Both providers implement the same `LLMService` interface in `LLMServiceFactory.t
 
 **Claude API** — Uses `claude-sonnet-4-20250514` for both calls. API key entered at runtime, stored in localStorage.
 
-**Ollama** — Supports split text/vision models (e.g., `alibayram/medgemma:4b` for Call 1, `llava:7b` for Call 2). Runs locally, no API key needed. Requires `OLLAMA_ORIGINS=*` for CORS.
+**Ollama** — Supports split text/vision models (e.g., `llama3.2` for Call 1, `llava:7b` for Call 2). Runs locally, no API key needed. Requires `OLLAMA_ORIGINS=*` for CORS.
 
 ### Image Preparation for LLM
 - Convert selected DICOM slices to JPEG using canvas

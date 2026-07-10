@@ -18,7 +18,7 @@ import type { ProviderConfig, ViewportContext } from './llm/types';
 import { useLLMChat, type SliceMapping } from './llm/useLLMChat';
 import { logger } from './utils/logger';
 
-const STORAGE_KEY = 'dicomassist-llm-config';
+const STORAGE_KEY = 'dicomai-llm-config';
 
 function loadConfig(): ProviderConfig {
   try {
@@ -273,7 +273,7 @@ export default function App() {
             seriesNumber: String(currentSeries.seriesNumber),
             totalSlicesInSeries: currentSeries.slices.length,
           };
-          logger.log('[DICOMassist] Viewport context:', viewportContext);
+          logger.log('[DICOMAI] Viewport context:', viewportContext);
         }
       }
     } catch { /* viewport may not be ready */ }

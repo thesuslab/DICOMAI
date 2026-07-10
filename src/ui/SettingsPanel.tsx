@@ -23,7 +23,7 @@ interface RecommendedModel {
 }
 
 const RECOMMENDED_MODELS: RecommendedModel[] = [
-  { name: 'alibayram/medgemma:4b', label: 'MedGemma 4B', desc: 'Medical text planning, no vision (2.5GB)', role: 'text' },
+  { name: 'llama3.2', label: 'Llama 3.2', desc: 'Medical text planning, no vision', role: 'text' },
   { name: 'gemma3:4b', label: 'Gemma 3 4B', desc: 'Official Google, text + vision (3.3GB)', role: 'both' },
   { name: 'llava:7b', label: 'LLaVA 7B', desc: 'Proven vision support (4.7GB)', role: 'vision' },
   { name: 'llama3.2:latest', label: 'Llama 3.2 3B', desc: 'Fast general text (2GB)', role: 'text' },
@@ -97,7 +97,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
   const isInstalled = (name: string) =>
     installedModels.some((m) => m.name === name || m.name === name.replace(':latest', '') || m.name + ':latest' === name);
 
-  const textModel = config.ollamaTextModel || 'alibayram/medgemma:4b';
+  const textModel = config.ollamaTextModel || 'llama3.2';
   const visionModel = config.ollamaVisionModel || 'llava:7b';
 
   return (
@@ -119,14 +119,14 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
           {/* Provider Toggle */}
           <div>
             <label className="text-xs text-neutral-400 block mb-1.5">Provider</label>
-            <div className="flex bg-neutral-900 rounded-lg p-0.5">
+            <div className="flex bg-neutral-900 rounded-lg p-0.5 gap-1">
               <button
                 onClick={() => setProvider('claude')}
                 className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   config.provider === 'claude' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                Claude API
+                Claude
               </button>
               <button
                 onClick={() => setProvider('ollama')}
@@ -134,7 +134,15 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                   config.provider === 'ollama' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
                 }`}
               >
-                Ollama (Local)
+                Ollama
+              </button>
+              <button
+                onClick={() => setProvider('openrouter')}
+                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  config.provider === 'openrouter' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                OpenRouter
               </button>
             </div>
           </div>
@@ -152,6 +160,59 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
               />
               <p className="text-[10px] text-neutral-500 mt-1">
                 Stored in localStorage only. Never sent to our servers.
+              </p>
+            </div>
+          )}
+
+          {/* OpenRouter fields */}
+          {config.provider === 'openrouter' && (
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs text-neutral-400 block mb-1.5">API Key</label>
+                <input
+                  type="password"
+                  value={config.apiKey ?? ''}
+                  onChange={(e) => onConfigChange({ ...config, apiKey: e.target.value })}
+                  placeholder="sk-or-..."
+                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-400 block mb-1.5">Base URL</label>
+                <input
+                  type="text"
+                  value={config.openRouterUrl ?? 'https://openrouter.ai/api/v1'}
+                  onChange={(e) => onConfigChange({ ...config, openRouterUrl: e.target.value })}
+                  placeholder="https://openrouter.ai/api/v1"
+                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-400 block mb-1.5">Text Model</label>
+                <input
+                  type="text"
+                  value={config.openRouterTextModel ?? 'openai/gpt-4o-mini'}
+                  onChange={(e) => onConfigChange({ ...config, openRouterTextModel: e.target.value })}
+                  placeholder="openai/gpt-4o-mini"
+                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-neutral-400 block mb-1.5">Vision Model</label>
+                <input
+                  type="text"
+                  value={config.openRouterVisionModel ?? 'openai/gpt-4o-mini'}
+                  onChange={(e) => onConfigChange({ ...config, openRouterVisionModel: e.target.value })}
+                  placeholder="openai/gpt-4o-mini"
+                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <p className="text-[10px] text-neutral-500">
+                Use any OpenRouter-compatible model name. Examples: openai/gpt-4o-mini or google/gemini-2.0-flash-1.
               </p>
             </div>
           )}

@@ -22,6 +22,7 @@ import {
   ChevronDown,
   Triangle,
   Circle,
+  Home,
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
@@ -51,6 +52,7 @@ interface ToolbarProps {
   onFlipVToggle?: () => void;
   cineEnabled?: boolean;
   onCineToggle?: () => void;
+  onGoHome?: () => void;
 }
 
 const mainTools: { name: ActiveToolName; label: string; icon: React.ReactNode }[] = [
@@ -124,7 +126,7 @@ function PortalDropdown({
       />
       {/* The actual dropdown menu — above the backdrop */}
       <div
-        className="fixed bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 z-[9999] min-w-[180px] pointer-events-auto"
+        className="fixed bg-bg-tertiary border border-border-strong rounded-lg shadow-xl py-1 z-[9999] min-w-[180px] pointer-events-auto"
         style={{ top: pos.top, left: pos.left }}
       >
         {children}
@@ -146,6 +148,7 @@ export default function Toolbar({
   flipH = false, onFlipHToggle,
   flipV = false, onFlipVToggle,
   cineEnabled = false, onCineToggle,
+  onGoHome,
 }: ToolbarProps) {
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [markerOpen, setMarkerOpen] = useState(false);
@@ -169,19 +172,34 @@ export default function Toolbar({
   const btnClass = (active?: boolean) =>
     `flex items-center gap-1.5 px-3 py-1.5 rounded text-sm transition-colors ${
       active
-        ? 'bg-blue-600 text-white'
-        : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+        ? 'bg-blue-600 text-text-primary'
+        : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
     }`;
 
   const toggleClass = (active?: boolean) =>
     `flex items-center gap-1 px-2 py-1.5 rounded text-sm transition-colors ${
       active
-        ? 'bg-amber-600/80 text-white'
-        : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+        ? 'bg-amber-600/80 text-text-primary'
+        : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
     }`;
 
   return (
-    <div className="relative z-20 flex items-center gap-1 px-3 py-2 bg-neutral-900 border-b border-neutral-800 overflow-x-auto whitespace-nowrap">
+    <div className="relative z-20 flex items-center gap-1 px-3 py-2 bg-bg-secondary border-b border-border-subtle overflow-x-auto whitespace-nowrap">
+      {/* Home button */}
+      {onGoHome && (
+        <>
+          <button
+            onClick={onGoHome}
+            title="Go Home"
+            className={btnClass()}
+          >
+            <Home className="w-5 h-5" />
+            <span className="hidden sm:inline">Home</span>
+          </button>
+          <div className="w-px h-6 bg-border-strong mx-1" />
+        </>
+      )}
+
       {/* Series browser toggle — far left */}
       {onToggleSeriesBrowser && (
         <>
@@ -193,7 +211,7 @@ export default function Toolbar({
             <Layers className="w-5 h-5" />
             <span className="hidden sm:inline">Series</span>
           </button>
-          <div className="w-px h-6 bg-neutral-700 mx-1" />
+          <div className="w-px h-6 bg-border-strong mx-1" />
         </>
       )}
 
@@ -235,8 +253,8 @@ export default function Toolbar({
           title={activeMeasureInfo.label}
           className={`flex items-center gap-1.5 pl-3 pr-1 py-1.5 rounded-l text-sm transition-colors ${
             isMeasureActive
-              ? 'bg-blue-600 text-white'
-              : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+              ? 'bg-blue-600 text-text-primary'
+              : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
           }`}
         >
           {activeMeasureInfo.icon}
@@ -247,8 +265,8 @@ export default function Toolbar({
           title="More measurements"
           className={`flex items-center px-1 py-1.5 rounded-r text-sm transition-colors ${
             isMeasureActive
-              ? 'bg-blue-600 text-white'
-              : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+              ? 'bg-blue-600 text-text-primary'
+              : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary'
           }`}
         >
           <ChevronDown className="w-3.5 h-3.5" />
@@ -265,7 +283,7 @@ export default function Toolbar({
               className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
                 activeTool === m.name
                   ? 'bg-blue-600/20 text-blue-400'
-                  : 'text-neutral-300 hover:bg-neutral-700'
+                  : 'text-neutral-300 hover:bg-border-strong'
               }`}
             >
               {m.icon}
@@ -275,7 +293,7 @@ export default function Toolbar({
         </PortalDropdown>
       </div>
 
-      <div className="w-px h-6 bg-neutral-700 mx-1" />
+      <div className="w-px h-6 bg-border-strong mx-1" />
 
       {/* Utility tools: Rotate */}
       <button
@@ -310,7 +328,7 @@ export default function Toolbar({
         </button>
       )}
 
-      <div className="w-px h-6 bg-neutral-700 mx-1" />
+      <div className="w-px h-6 bg-border-strong mx-1" />
 
       <button
         onClick={onReset}
@@ -321,7 +339,7 @@ export default function Toolbar({
         <span className="hidden sm:inline">Reset</span>
       </button>
 
-      <div className="w-px h-6 bg-neutral-700 mx-1" />
+      <div className="w-px h-6 bg-border-strong mx-1" />
 
       {/* Layout dropdown */}
       <button
@@ -344,7 +362,7 @@ export default function Toolbar({
             className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
               layout === l.name
                 ? 'bg-blue-600/20 text-blue-400'
-                : 'text-neutral-300 hover:bg-neutral-700'
+                : 'text-neutral-300 hover:bg-border-strong'
             }`}
           >
             {l.icon}
@@ -375,7 +393,7 @@ export default function Toolbar({
                 className={`flex items-center gap-2 w-full px-3 py-2 text-sm text-left transition-colors ${
                   orientationMarkerType === m.name
                     ? 'bg-blue-600/20 text-blue-400'
-                    : 'text-neutral-300 hover:bg-neutral-700'
+                    : 'text-neutral-300 hover:bg-border-strong'
                 }`}
               >
                 {m.label}

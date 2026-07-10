@@ -261,7 +261,7 @@ function FormattedLine({
   // Headers: ## or **Header:**
   if (line.startsWith('## ')) {
     return (
-      <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-wide mt-3 mb-1 border-b border-neutral-800 pb-1">
+      <h3 className="text-xs font-semibold text-blue-400 uppercase tracking-wide mt-3 mb-1 border-b border-border-subtle pb-1">
         {line.slice(3)}
       </h3>
     );

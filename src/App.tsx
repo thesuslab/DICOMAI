@@ -118,6 +118,30 @@ export default function App() {
     };
   }, [imageIds]);
 
+  const handleGoHome = useCallback(() => {
+    setImageIds([]);
+    setStudyMetadata(null);
+    setShowChat(false);
+    setShowMetadata(false);
+    clearChat();
+  }, [clearChat]);
+
+  // Apply theme and font scaling
+  useEffect(() => {
+    const root = document.documentElement;
+    if (providerConfig.theme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+    
+    // Scale root font size (default is 16px)
+    const scale = providerConfig.fontScale || 1.0;
+    root.style.fontSize = `${16 * scale}px`;
+  }, [providerConfig.theme, providerConfig.fontScale]);
+
   // Apply SelectionPlan to viewport (W/L + scroll + switch series if needed)
   useEffect(() => {
     if (!currentPlan || !studyMetadata) return;
@@ -421,7 +445,7 @@ export default function App() {
     return (
       <>
         {!disclaimerAccepted && <DisclaimerModal onAccept={handleAcceptDisclaimer} />}
-        <div className="flex items-center justify-center h-full text-neutral-500">
+        <div className="flex items-center justify-center h-full text-text-tertiary">
           Initializing viewer...
         </div>
       </>
@@ -447,6 +471,7 @@ export default function App() {
         layout={layout}
         onLayoutChange={setLayout}
         onReset={handleReset}
+        onGoHome={handleGoHome}
         showSeriesBrowser={showSeriesBrowser}
         onToggleSeriesBrowser={studyMetadata && studyMetadata.series.length > 1 ? () => setShowSeriesBrowser((v) => !v) : undefined}
         showMetadata={showMetadata}

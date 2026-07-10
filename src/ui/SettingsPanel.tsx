@@ -104,26 +104,71 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
     <div className="fixed inset-0 z-40" onClick={onClose}>
       <div
         ref={panelRef}
-        className="absolute top-12 right-4 w-96 max-h-[80vh] bg-neutral-800 border border-neutral-600 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+        className="absolute top-12 right-4 w-96 max-h-[80vh] bg-bg-tertiary border border-neutral-600 rounded-xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border-strong shrink-0">
           <span className="text-sm font-medium text-neutral-200">LLM Settings</span>
-          <button onClick={onClose} className="p-0.5 rounded hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200">
+          <button onClick={onClose} className="p-0.5 rounded hover:bg-border-strong text-text-secondary hover:text-text-primary">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="overflow-y-auto p-4 space-y-4">
+          {/* UI Settings */}
+          <div className="pb-4 border-b border-border-strong mb-4 space-y-4">
+            <div>
+              <label className="text-xs text-text-secondary block mb-1.5">Theme</label>
+              <div className="flex bg-bg-secondary rounded-lg p-0.5 gap-1">
+                <button
+                  onClick={() => onConfigChange({ ...config, theme: 'dark' })}
+                  className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    (!config.theme || config.theme === 'dark') ? 'bg-blue-600 text-text-primary' : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  Dark
+                </button>
+                <button
+                  onClick={() => onConfigChange({ ...config, theme: 'light' })}
+                  className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    config.theme === 'light' ? 'bg-blue-600 text-text-primary' : 'text-text-secondary hover:text-text-primary'
+                  }`}
+                >
+                  Light
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-text-secondary block mb-1.5">
+                Text Size
+              </label>
+              <input
+                type="range"
+                min="0.8"
+                max="1.5"
+                step="0.1"
+                value={config.fontScale ?? 1.0}
+                onChange={(e) => onConfigChange({ ...config, fontScale: parseFloat(e.target.value) })}
+                className="w-full accent-blue-600"
+              />
+              <div className="flex justify-between text-[10px] text-text-tertiary mt-1">
+                <span>Smaller</span>
+                <span>Default</span>
+                <span>Larger</span>
+              </div>
+            </div>
+          </div>
+
           {/* Provider Toggle */}
           <div>
-            <label className="text-xs text-neutral-400 block mb-1.5">Provider</label>
-            <div className="flex bg-neutral-900 rounded-lg p-0.5 gap-1">
+            <label className="text-xs text-text-secondary block mb-1.5">Provider</label>
+            <div className="flex bg-bg-secondary rounded-lg p-0.5 gap-1">
               <button
                 onClick={() => setProvider('claude')}
                 className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  config.provider === 'claude' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                  config.provider === 'claude' ? 'bg-blue-600 text-text-primary' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 Claude
@@ -131,7 +176,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
               <button
                 onClick={() => setProvider('ollama')}
                 className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  config.provider === 'ollama' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                  config.provider === 'ollama' ? 'bg-blue-600 text-text-primary' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 Ollama
@@ -139,7 +184,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
               <button
                 onClick={() => setProvider('openrouter')}
                 className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                  config.provider === 'openrouter' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-neutral-200'
+                  config.provider === 'openrouter' ? 'bg-blue-600 text-text-primary' : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 OpenRouter
@@ -150,15 +195,15 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
           {/* Claude fields */}
           {config.provider === 'claude' && (
             <div>
-              <label className="text-xs text-neutral-400 block mb-1.5">API Key</label>
+              <label className="text-xs text-text-secondary block mb-1.5">API Key</label>
               <input
                 type="password"
                 value={config.apiKey ?? ''}
                 onChange={(e) => onConfigChange({ ...config, apiKey: e.target.value })}
                 placeholder="sk-ant-..."
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
               />
-              <p className="text-[10px] text-neutral-500 mt-1">
+              <p className="text-[10px] text-text-tertiary mt-1">
                 Stored in localStorage only. Never sent to our servers.
               </p>
             </div>
@@ -168,50 +213,50 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
           {config.provider === 'openrouter' && (
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-neutral-400 block mb-1.5">API Key</label>
+                <label className="text-xs text-text-secondary block mb-1.5">API Key</label>
                 <input
                   type="password"
                   value={config.apiKey ?? ''}
                   onChange={(e) => onConfigChange({ ...config, apiKey: e.target.value })}
                   placeholder="sk-or-..."
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                  className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-neutral-400 block mb-1.5">Base URL</label>
+                <label className="text-xs text-text-secondary block mb-1.5">Base URL</label>
                 <input
                   type="text"
                   value={config.openRouterUrl ?? 'https://openrouter.ai/api/v1'}
                   onChange={(e) => onConfigChange({ ...config, openRouterUrl: e.target.value })}
                   placeholder="https://openrouter.ai/api/v1"
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                  className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-neutral-400 block mb-1.5">Text Model</label>
+                <label className="text-xs text-text-secondary block mb-1.5">Text Model</label>
                 <input
                   type="text"
                   value={config.openRouterTextModel ?? 'openai/gpt-4o-mini'}
                   onChange={(e) => onConfigChange({ ...config, openRouterTextModel: e.target.value })}
                   placeholder="openai/gpt-4o-mini"
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                  className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-neutral-400 block mb-1.5">Vision Model</label>
+                <label className="text-xs text-text-secondary block mb-1.5">Vision Model</label>
                 <input
                   type="text"
                   value={config.openRouterVisionModel ?? 'openai/gpt-4o-mini'}
                   onChange={(e) => onConfigChange({ ...config, openRouterVisionModel: e.target.value })}
                   placeholder="openai/gpt-4o-mini"
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                  className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
                 />
               </div>
 
-              <p className="text-[10px] text-neutral-500">
+              <p className="text-[10px] text-text-tertiary">
                 Use any OpenRouter-compatible model name. Examples: openai/gpt-4o-mini or google/gemini-2.0-flash-1.
               </p>
             </div>
@@ -225,14 +270,14 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                 {ollamaStatus === 'checking' && (
                   <>
                     <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
-                    <span className="text-neutral-400">Connecting...</span>
+                    <span className="text-text-secondary">Connecting...</span>
                   </>
                 )}
                 {ollamaStatus === 'online' && (
                   <>
                     <CheckCircle className="w-3.5 h-3.5 text-green-400" />
                     <span className="text-green-400">Ollama running</span>
-                    <span className="text-neutral-500">({installedModels.length} model{installedModels.length !== 1 ? 's' : ''})</span>
+                    <span className="text-text-tertiary">({installedModels.length} model{installedModels.length !== 1 ? 's' : ''})</span>
                   </>
                 )}
                 {ollamaStatus === 'offline' && (
@@ -243,7 +288,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                 )}
                 <button
                   onClick={refreshModels}
-                  className="text-neutral-500 hover:text-neutral-300 ml-auto text-xs"
+                  className="text-text-tertiary hover:text-neutral-300 ml-auto text-xs"
                 >
                   Refresh
                 </button>
@@ -255,13 +300,13 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
 
               {/* Ollama URL */}
               <div>
-                <label className="text-xs text-neutral-400 block mb-1.5">Ollama URL</label>
+                <label className="text-xs text-text-secondary block mb-1.5">Ollama URL</label>
                 <input
                   type="text"
                   value={config.ollamaUrl ?? 'http://localhost:11434'}
                   onChange={(e) => onConfigChange({ ...config, ollamaUrl: e.target.value })}
                   placeholder="http://localhost:11434"
-                  className="w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
+                  className="w-full bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 outline-none focus:border-blue-500"
                 />
               </div>
 
@@ -269,7 +314,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                 <>
                   {/* Text Model (Call 1) */}
                   <div>
-                    <label className="text-xs text-neutral-400 block mb-1.5">
+                    <label className="text-xs text-text-secondary block mb-1.5">
                       Text Model <span className="text-neutral-600">(Call 1: slice planning)</span>
                     </label>
                     <ModelDropdown
@@ -281,7 +326,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
 
                   {/* Vision Model (Call 2) */}
                   <div>
-                    <label className="text-xs text-neutral-400 block mb-1.5">
+                    <label className="text-xs text-text-secondary block mb-1.5">
                       Vision Model <span className="text-neutral-600">(Call 2: image analysis)</span>
                     </label>
                     <ModelDropdown
@@ -293,7 +338,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
 
                   {/* Recommended Models */}
                   <div>
-                    <label className="text-xs text-neutral-400 block mb-2">Available Models</label>
+                    <label className="text-xs text-text-secondary block mb-2">Available Models</label>
                     <div className="space-y-1.5">
                       {RECOMMENDED_MODELS.map((rm) => {
                         const installed = isInstalled(rm.name);
@@ -302,7 +347,7 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                           <div
                             key={rm.name}
                             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
-                              installed ? 'bg-neutral-900' : 'bg-neutral-900/50 border border-dashed border-neutral-700'
+                              installed ? 'bg-bg-secondary' : 'bg-bg-secondary/50 border border-dashed border-border-strong'
                             }`}
                           >
                             <div className="flex-1 min-w-0">
@@ -311,13 +356,13 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                                 <RoleBadge role={rm.role} />
                                 {installed && <CheckCircle className="w-3 h-3 text-green-500" />}
                               </div>
-                              <p className="text-neutral-500 text-[10px] mt-0.5">{rm.desc}</p>
+                              <p className="text-text-tertiary text-[10px] mt-0.5">{rm.desc}</p>
                             </div>
                             {!installed && !isPulling && (
                               <button
                                 onClick={() => handlePull(rm.name)}
                                 disabled={!!pulling}
-                                className="shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-medium disabled:opacity-30"
+                                className="shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-text-primary text-[10px] font-medium disabled:opacity-30"
                               >
                                 <Download className="w-3 h-3" />
                                 Pull
@@ -338,8 +383,8 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                                     onClick={() => onConfigChange({ ...config, ollamaTextModel: rm.name })}
                                     className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                       textModel === rm.name
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-neutral-700 text-neutral-400 hover:text-neutral-200'
+                                        ? 'bg-purple-600 text-text-primary'
+                                        : 'bg-border-strong text-text-secondary hover:text-text-primary'
                                     }`}
                                   >
                                     Text
@@ -350,8 +395,8 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
                                     onClick={() => onConfigChange({ ...config, ollamaVisionModel: rm.name })}
                                     className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                       visionModel === rm.name
-                                        ? 'bg-teal-600 text-white'
-                                        : 'bg-neutral-700 text-neutral-400 hover:text-neutral-200'
+                                        ? 'bg-teal-600 text-text-primary'
+                                        : 'bg-border-strong text-text-secondary hover:text-text-primary'
                                     }`}
                                   >
                                     Vision
@@ -367,13 +412,13 @@ export default function SettingsPanel({ open, onClose, config, onConfigChange }:
 
                   {/* Pull progress bar */}
                   {pulling && (
-                    <div className="bg-neutral-900 rounded-lg px-3 py-2">
+                    <div className="bg-bg-secondary rounded-lg px-3 py-2">
                       <div className="flex items-center justify-between text-xs mb-1">
                         <span className="text-neutral-300 font-mono">{pulling.model}</span>
-                        <span className="text-neutral-500">{pulling.percent != null ? `${pulling.percent}%` : pulling.status}</span>
+                        <span className="text-text-tertiary">{pulling.percent != null ? `${pulling.percent}%` : pulling.status}</span>
                       </div>
                       {pulling.percent != null && (
-                        <div className="h-1 bg-neutral-700 rounded-full overflow-hidden">
+                        <div className="h-1 bg-border-strong rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-500 rounded-full transition-all duration-300"
                             style={{ width: `${pulling.percent}%` }}
@@ -426,17 +471,17 @@ function OllamaOfflineHelp({ onRetry }: { onRetry: () => void }) {
   }, []);
 
   return (
-    <div className="bg-neutral-900 rounded-lg px-3 py-3 space-y-2.5">
-      <div className="text-xs text-neutral-400">
+    <div className="bg-bg-secondary rounded-lg px-3 py-3 space-y-2.5">
+      <div className="text-xs text-text-secondary">
         Ollama is not running. Start it in your terminal:
       </div>
       <div className="flex items-center gap-2">
-        <code className="flex-1 bg-neutral-950 text-neutral-200 font-mono text-xs px-3 py-1.5 rounded">
+        <code className="flex-1 bg-bg-primary text-neutral-200 font-mono text-xs px-3 py-1.5 rounded">
           ollama serve
         </code>
         <button
           onClick={copyCommand}
-          className="p-1.5 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-300 transition-colors"
+          className="p-1.5 rounded bg-border-strong hover:bg-neutral-600 text-neutral-300 transition-colors"
           title="Copy command"
         >
           {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -446,7 +491,7 @@ function OllamaOfflineHelp({ onRetry }: { onRetry: () => void }) {
         {!polling ? (
           <button
             onClick={startPolling}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-text-primary text-xs font-medium transition-colors"
           >
             <RefreshCw className="w-3 h-3" />
             Wait for Ollama...
@@ -500,13 +545,13 @@ function ModelDropdown({
     <div className="relative" ref={ref}>
       <button
         onClick={() => setDropOpen(!dropOpen)}
-        className="w-full flex items-center justify-between bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-100 hover:border-neutral-600"
+        className="w-full flex items-center justify-between bg-bg-secondary border border-border-strong rounded-lg px-3 py-2 text-sm text-neutral-100 hover:border-neutral-600"
       >
         <span className="truncate">{value}</span>
-        <ChevronDown className={`w-4 h-4 text-neutral-500 transition-transform ${dropOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-text-tertiary transition-transform ${dropOpen ? 'rotate-180' : ''}`} />
       </button>
       {dropOpen && (
-        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl py-1 max-h-48 overflow-y-auto">
+        <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-bg-tertiary border border-border-strong rounded-lg shadow-xl py-1 max-h-48 overflow-y-auto">
           {models.map((m) => (
             <button
               key={m.name}
@@ -515,15 +560,15 @@ function ModelDropdown({
                 setDropOpen(false);
               }}
               className={`flex items-center justify-between w-full px-3 py-1.5 text-sm text-left transition-colors ${
-                value === m.name ? 'bg-blue-600/20 text-blue-400' : 'text-neutral-300 hover:bg-neutral-700'
+                value === m.name ? 'bg-blue-600/20 text-blue-400' : 'text-neutral-300 hover:bg-border-strong'
               }`}
             >
               <span className="truncate">{m.name}</span>
-              <span className="text-[10px] text-neutral-500 shrink-0 ml-2">{formatSize(m.size)}</span>
+              <span className="text-[10px] text-text-tertiary shrink-0 ml-2">{formatSize(m.size)}</span>
             </button>
           ))}
           {models.length === 0 && (
-            <div className="px-3 py-2 text-xs text-neutral-500">No models installed</div>
+            <div className="px-3 py-2 text-xs text-text-tertiary">No models installed</div>
           )}
         </div>
       )}

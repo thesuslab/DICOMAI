@@ -6,13 +6,13 @@ interface LandingScreenProps {
 
 export default function LandingScreen({ children }: LandingScreenProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-zinc-300 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-black text-text-secondary p-8">
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">DICOMAI</h1>
-          <p className="text-lg text-zinc-400">AI-Powered Medical Image Analysis</p>
-          <p className="text-sm text-zinc-500 mt-2">
+          <h1 className="text-3xl font-bold text-text-primary mb-2">DICOMAI</h1>
+          <p className="text-lg text-text-secondary">AI-Powered Medical Image Analysis</p>
+          <p className="text-sm text-text-tertiary mt-2">
             Smart slice selection meets multimodal AI analysis.
             <br />
             Load your DICOM files to get started.
@@ -26,39 +26,39 @@ export default function LandingScreen({ children }: LandingScreenProps) {
 
         {/* How it works */}
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-4">
+          <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wide mb-4">
             How it works
           </h3>
           <div className="space-y-3 text-sm">
             <div>
               <span className="text-blue-400 font-mono mr-2">1.</span>
               <strong className="text-zinc-200">Load</strong>
-              <span className="text-zinc-400"> — Drop your DICOM files or folder</span>
+              <span className="text-text-secondary"> — Drop your DICOM files or folder</span>
             </div>
             <div>
               <span className="text-blue-400 font-mono mr-2">2.</span>
               <strong className="text-zinc-200">Analyze</strong>
-              <span className="text-zinc-400"> — Describe what to evaluate</span>
+              <span className="text-text-secondary"> — Describe what to evaluate</span>
             </div>
             <div>
               <span className="text-blue-400 font-mono mr-2">3.</span>
               <strong className="text-zinc-200">Plan</strong>
-              <span className="text-zinc-400"> — AI selects optimal series and slices</span>
+              <span className="text-text-secondary"> — AI selects optimal series and slices</span>
             </div>
             <div>
               <span className="text-blue-400 font-mono mr-2">4.</span>
               <strong className="text-zinc-200">Review</strong>
-              <span className="text-zinc-400"> — Get findings with interactive slice references</span>
+              <span className="text-text-secondary"> — Get findings with interactive slice references</span>
             </div>
           </div>
         </div>
 
         {/* Features */}
         <div className="mb-8">
-          <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-4">
+          <h3 className="text-sm font-semibold text-text-secondary uppercase tracking-wide mb-4">
             Features
           </h3>
-          <ul className="text-sm text-zinc-400 space-y-1.5">
+          <ul className="text-sm text-text-secondary space-y-1.5">
             <li><strong>Multi-series support with automatic scout detection</strong></li>
             <li><strong>Smart slice filtering</strong> — AI picks what matters</li>
             <li><strong>Interactive results</strong> — Findings include clickable slice references that jump the viewer directly to the referenced image.</li>
@@ -77,7 +77,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
             href="https://kathmandu.codes"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-zinc-400 transition-colors"
+            className="hover:text-text-secondary transition-colors"
           >
             Kathmandu Codes
           </a>

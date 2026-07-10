@@ -42,6 +42,8 @@ export interface ProviderConfig {
   openRouterTextModel?: string; // OpenRouter model for Call 1 (text-only planning)
   openRouterVisionModel?: string; // OpenRouter model for Call 2 (multimodal analysis)
   openRouterUrl?: string;   // OpenRouter base URL override
+  theme?: 'dark' | 'light'; // UI theme preference
+  fontScale?: number;       // UI font scale preference
 }
 
 export interface ViewportContext {

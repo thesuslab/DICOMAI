@@ -13,18 +13,18 @@ export default function SeriesBrowser({ metadata, activeSeriesUID, onSelectSerie
   const scoutSeries = metadata.series.filter((s) => s.isScout);
 
   return (
-    <div className="w-64 h-full bg-neutral-900 border-r border-neutral-700 flex flex-col overflow-hidden">
+    <div className="w-64 h-full bg-bg-secondary border-r border-border-strong flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-700">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border-strong">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-neutral-200">Series</span>
-          <span className="text-[10px] font-medium text-neutral-400 bg-neutral-800 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-medium text-text-secondary bg-bg-tertiary px-1.5 py-0.5 rounded">
             {metadata.series.length}
           </span>
         </div>
         <button
           onClick={onClose}
-          className="p-0.5 rounded hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
+          className="p-0.5 rounded hover:bg-border-strong text-text-secondary hover:text-text-primary"
         >
           <X className="w-4 h-4" />
         </button>
@@ -42,7 +42,7 @@ export default function SeriesBrowser({ metadata, activeSeriesUID, onSelectSerie
           />
         ))}
         {scoutSeries.length > 0 && clinicalSeries.length > 0 && (
-          <div className="mx-3 my-1 border-t border-neutral-700/50" />
+          <div className="mx-3 my-1 border-t border-border-strong/50" />
         )}
         {scoutSeries.map((series) => (
           <SeriesItem
@@ -83,7 +83,7 @@ function SeriesItem({
       className={`w-full text-left px-3 py-2 transition-colors ${
         isActive
           ? 'bg-blue-950/50 border-l-2 border-blue-500'
-          : 'hover:bg-neutral-800 border-l-2 border-transparent'
+          : 'hover:bg-bg-tertiary border-l-2 border-transparent'
       } ${series.isScout ? 'opacity-50' : ''}`}
     >
       {/* Line 1: series number + description + badges */}
@@ -95,13 +95,13 @@ function SeriesItem({
           <span className="shrink-0 w-1.5 h-1.5 bg-green-400 rounded-full" title="Primary series" />
         )}
         {series.isScout && (
-          <span className="shrink-0 text-[10px] font-medium text-neutral-400 bg-neutral-700/60 px-1 rounded">
+          <span className="shrink-0 text-[10px] font-medium text-text-secondary bg-border-strong/60 px-1 rounded">
             Scout
           </span>
         )}
       </div>
       {/* Line 2: plane, slice count, thickness, matrix, weighting */}
-      <div className="text-[11px] text-neutral-500 mt-0.5">
+      <div className="text-[11px] text-text-tertiary mt-0.5">
         {plane} &middot; {series.slices.length} slices{thickness && <> &middot; {thickness}</>}
         {matrix && <> &middot; {matrix}</>}
         {weightingBadge && (

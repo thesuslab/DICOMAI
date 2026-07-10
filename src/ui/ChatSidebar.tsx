@@ -102,23 +102,23 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
   };
 
   return (
-    <div className="w-96 h-full bg-neutral-900 border-l border-neutral-700 flex flex-col overflow-hidden">
+    <div className="w-96 h-full bg-bg-secondary border-l border-border-strong flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-neutral-700 shrink-0">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border-strong shrink-0">
         <span className="text-sm font-medium text-neutral-200">Analysis Chat</span>
         <div className="flex items-center gap-1">
           {messages.length > 0 && (
             <button
               onClick={onClear}
               title="Clear chat"
-              className="p-1 rounded hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
+              className="p-1 rounded hover:bg-border-strong text-text-secondary hover:text-text-primary"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200"
+            className="p-1 rounded hover:bg-border-strong text-text-secondary hover:text-text-primary"
           >
             <X className="w-4 h-4" />
           </button>
@@ -149,7 +149,7 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
               }}
             />
           ) : (
-            <div className="text-center text-neutral-500 text-xs mt-8">
+            <div className="text-center text-text-tertiary text-xs mt-8">
               <p>No analysis yet.</p>
               <p className="mt-1">Describe the clinical context below to start.</p>
             </div>
@@ -206,8 +206,8 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
       </div>
 
       {/* Input */}
-      <div className="px-3 pb-3 pt-1 border-t border-neutral-800 shrink-0">
-        <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+      <div className="px-3 pb-3 pt-1 border-t border-border-subtle shrink-0">
+        <div className="flex items-center gap-2 bg-bg-tertiary rounded-lg px-3 py-2">
           <input
             ref={inputRef}
             type="text"
@@ -221,7 +221,7 @@ export default forwardRef<ChatSidebarHandle, ChatSidebarProps>(function ChatSide
           <button
             onClick={handleSend}
             disabled={busy || !input.trim()}
-            className="p-1 rounded text-neutral-400 hover:text-blue-400 disabled:opacity-30 disabled:hover:text-neutral-400"
+            className="p-1 rounded text-text-secondary hover:text-blue-400 disabled:opacity-30 disabled:hover:text-text-secondary"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -253,13 +253,13 @@ function SurveyModePanel({
   return (
     <div className="mt-4 space-y-3">
       {/* Mode toggle */}
-      <div className="flex gap-1 bg-neutral-800 rounded-lg p-1">
+      <div className="flex gap-1 bg-bg-tertiary rounded-lg p-1">
         <button
           onClick={() => onToggleSurvey(false)}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
             !surveyActive
-              ? 'bg-neutral-700 text-neutral-100'
-              : 'text-neutral-400 hover:text-neutral-300'
+              ? 'bg-border-strong text-neutral-100'
+              : 'text-text-secondary hover:text-neutral-300'
           }`}
         >
           <MessageSquare className="w-3.5 h-3.5" />
@@ -269,8 +269,8 @@ function SurveyModePanel({
           onClick={() => onToggleSurvey(true)}
           className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
             surveyActive
-              ? 'bg-neutral-700 text-neutral-100'
-              : 'text-neutral-400 hover:text-neutral-300'
+              ? 'bg-border-strong text-neutral-100'
+              : 'text-text-secondary hover:text-neutral-300'
           }`}
         >
           <ClipboardList className="w-3.5 h-3.5" />
@@ -279,14 +279,14 @@ function SurveyModePanel({
       </div>
 
       {!surveyActive && (
-        <div className="text-center text-neutral-500 text-xs">
+        <div className="text-center text-text-tertiary text-xs">
           <p>Describe the clinical context below to start.</p>
         </div>
       )}
 
       {surveyActive && (
         <div className="space-y-2">
-          <div className="text-xs text-neutral-400">
+          <div className="text-xs text-text-secondary">
             Detected: <span className="text-neutral-200 font-medium">{checklist.displayName}</span>
           </div>
 
@@ -295,13 +295,13 @@ function SurveyModePanel({
             {checklist.structures.map((item) => (
               <label
                 key={item.id}
-                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-neutral-800 cursor-pointer"
+                className="flex items-center gap-2 px-2 py-1 rounded hover:bg-bg-tertiary cursor-pointer"
               >
                 <input
                   type="checkbox"
                   checked={selectedStructures.has(item.id)}
                   onChange={() => onToggleStructure(item.id)}
-                  className="rounded border-neutral-600 bg-neutral-800 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                  className="rounded border-neutral-600 bg-bg-tertiary text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
                 />
                 <span className="text-xs text-neutral-300">{item.label}</span>
               </label>
@@ -312,7 +312,7 @@ function SurveyModePanel({
           <button
             onClick={onRunSurvey}
             disabled={selectedCount === 0}
-            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:text-neutral-500 text-white text-xs font-medium transition-colors"
+            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-border-strong disabled:text-text-tertiary text-text-primary text-xs font-medium transition-colors"
           >
             Run Survey ({selectedCount} structure{selectedCount !== 1 ? 's' : ''})
           </button>
@@ -326,7 +326,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
   if (message.role === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] bg-blue-600 text-white text-sm px-3 py-2 rounded-xl rounded-br-sm">
+        <div className="max-w-[85%] bg-blue-600 text-text-primary text-sm px-3 py-2 rounded-xl rounded-br-sm">
           {message.content}
         </div>
       </div>

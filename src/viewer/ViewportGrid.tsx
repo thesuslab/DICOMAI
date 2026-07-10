@@ -110,14 +110,14 @@ function ViewportOverlay({ label, info }: { label: string; info: ViewportInfo })
           {label}
         </span>
         {info.total > 0 && (
-          <span className={`text-[11px] tabular-nums text-neutral-400 ${shadow}`}>
+          <span className={`text-[11px] tabular-nums text-text-secondary ${shadow}`}>
             {info.current + 1} / {info.total}
           </span>
         )}
       </div>
       {(info.ww > 0 || info.wc !== 0) && (
         <div className={`absolute bottom-2 left-2 pointer-events-none z-10`}>
-          <span className={`text-[11px] tabular-nums text-neutral-400 ${shadow}`}>
+          <span className={`text-[11px] tabular-nums text-text-secondary ${shadow}`}>
             W:{Math.round(info.ww)} C:{Math.round(info.wc)}
           </span>
         </div>
@@ -164,13 +164,13 @@ function SliceSlider({ current, total, onChange }: {
   return (
     <div
       ref={trackRef}
-      className="w-5 shrink-0 flex items-center justify-center bg-neutral-900 cursor-pointer select-none"
+      className="w-5 shrink-0 flex items-center justify-center bg-bg-secondary cursor-pointer select-none"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
-      <div className="relative w-1 h-full rounded-full bg-neutral-700">
+      <div className="relative w-1 h-full rounded-full bg-border-strong">
         <div
           className="absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-blue-500 shadow"
           style={{ top: `calc(${pct}% - 6px)` }}
@@ -890,7 +890,7 @@ export default function ViewportGrid({
   if (layout === 'mpr') {
     return (
       <div
-        className="w-full h-full grid grid-cols-2 grid-rows-2 gap-px bg-neutral-800"
+        className="w-full h-full grid grid-cols-2 grid-rows-2 gap-px bg-bg-tertiary"
         onContextMenu={(e) => e.preventDefault()}
       >
         <div className="flex overflow-hidden">
@@ -914,7 +914,7 @@ export default function ViewportGrid({
             <ViewportOverlay label="Coronal" info={mprInfo.CT_CORONAL} />
           </div>
         </div>
-        <div className="bg-neutral-900 flex items-center justify-center">
+        <div className="bg-bg-secondary flex items-center justify-center">
           <span className="text-xs text-neutral-600">3D view (coming soon)</span>
         </div>
       </div>
@@ -931,7 +931,7 @@ export default function ViewportGrid({
 
     return (
       <div
-        className={`w-full h-full grid ${gridClass} gap-px bg-neutral-800`}
+        className={`w-full h-full grid ${gridClass} gap-px bg-bg-tertiary`}
         onContextMenu={(e) => e.preventDefault()}
       >
         {Array.from({ length: count }).map((_, i) => {
@@ -968,7 +968,7 @@ export default function ViewportGrid({
                     {hasSeries && (
                       <button
                         onClick={() => setPickingSlot(i)}
-                        className="absolute top-2 right-2 z-10 w-6 h-6 flex items-center justify-center rounded bg-neutral-800/70 hover:bg-neutral-700 text-neutral-400 hover:text-neutral-200 text-xs transition-colors"
+                        className="absolute top-2 right-2 z-10 w-6 h-6 flex items-center justify-center rounded bg-bg-tertiary/70 hover:bg-border-strong text-text-secondary hover:text-text-primary text-xs transition-colors"
                         title="Switch series"
                       >
                         &#x21C4;

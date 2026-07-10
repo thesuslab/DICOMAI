@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { imageLoader, getRenderingEngine } from '@cornerstonejs/core';
-import type { IStackViewport } from '@cornerstonejs/core';
+import type { StackViewport } from '@cornerstonejs/core';
 import { initCornerstone } from './viewer/CornerstoneInit';
 import DicomDropZone, { type LoadResult } from './viewer/DicomDropZone';
 import ViewportGrid, { type ActiveToolName, type LayoutType, type OrientationMarkerType } from './viewer/ViewportGrid';
@@ -146,7 +146,7 @@ export default function App() {
           if (attempts++ < 5) setTimeout(applyPlan, 200);
           return;
         }
-        const viewport = engine.getViewport('CT_STACK') as IStackViewport | undefined;
+        const viewport = engine.getViewport('CT_STACK') as StackViewport | undefined;
         if (!viewport) {
           if (attempts++ < 5) setTimeout(applyPlan, 200);
           return;
@@ -255,7 +255,7 @@ export default function App() {
     let viewportContext: ViewportContext | undefined;
     try {
       const engine = getRenderingEngine('dicomRenderingEngine');
-      const viewport = engine?.getViewport('CT_STACK') as IStackViewport | undefined;
+      const viewport = engine?.getViewport('CT_STACK') as StackViewport | undefined;
       if (viewport && studyMetadata) {
         const sliceIndex = viewport.getCurrentImageIdIndex();
         // Find which series is currently displayed
@@ -347,9 +347,9 @@ export default function App() {
       const engine = getRenderingEngine('dicomRenderingEngine');
       if (!engine) return false;
 
-      let viewport = engine.getViewport('CT_STACK') as IStackViewport | undefined;
+      let viewport = engine.getViewport('CT_STACK') as StackViewport | undefined;
       if (!viewport) {
-        viewport = engine.getViewport('CT_SINGLE_VOL') as IStackViewport | undefined;
+        viewport = engine.getViewport('CT_SINGLE_VOL') as StackViewport | undefined;
       }
       if (!viewport) return false;
 
@@ -378,7 +378,7 @@ export default function App() {
 
       // Strategy 3: Partial imageId match
       const partialIdx = viewportIds.findIndex(
-        (id) => id.includes(imageId) || imageId.includes(id),
+        (id: string) => id.includes(imageId) || imageId.includes(id),
       );
       if (partialIdx >= 0) {
         logger.log(`[Navigate] Partial imageId match at index ${partialIdx}`);

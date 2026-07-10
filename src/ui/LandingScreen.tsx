@@ -77,7 +77,7 @@ export default function LandingScreen({ children }: LandingScreenProps) {
             rel="noopener noreferrer"
             className="hover:text-zinc-400 transition-colors"
           >
-            GitHub
+            Kathmandu Codes
           </a>
           <span>&middot;</span>
           <span>Educational and research purpose only</span>
